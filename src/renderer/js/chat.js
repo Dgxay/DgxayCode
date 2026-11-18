@@ -187,8 +187,8 @@ export function refreshChrome() {
 
   inputEl.placeholder =
     mode === 'work'
-      ? '描述任务，AI 会连续执行直到完成'
-      : '给 DgxayCode 发送消息';
+      ? '描述要处理的任务…'
+      : '写消息…';
 
   document.body.dataset.mode = mode;
   updateComposerHint();
@@ -293,15 +293,15 @@ function heroHtml() {
   const model = activeModel();
   const perm = PERMISSIONS[currentPermission()];
 
-  const title = mode === 'work' ? '把一件事完整交给 AI' : '今天想聊些什么？';
+  const title = mode === 'work' ? '开始一项工作' : '开始对话';
   const sub =
     mode === 'work'
       ? currentWorkspace()
         ? `工作空间 ${workspaceLabel(currentWorkspace())} · ${perm.label}`
-        : '先在下方选择一个文件夹作为工作空间，AI 生成的文件都会存放在那里。'
+        : '先选择工作空间文件夹，便于指定任务的工作目录。'
       : model
-        ? `${model.name} · ${model.providerName}`
-        : '还没有配置模型，先去设置里连接一个吧。';
+        ? '输入问题，或粘贴一段代码。'
+        : '还没有配置模型，请先在设置中添加供应商与模型。';
 
   const cards = (SUGGESTIONS[mode] || SUGGESTIONS.chat)
     .map(
@@ -322,7 +322,7 @@ function heroHtml() {
       <p>${sub}</p>
       <div class="suggests">${cards}</div>
       <div class="hero-foot">
-        <span>${mode === 'work' ? '任务会连续执行，直到完成或需要你授权' : '输入 / 打开命令，输入 ! 执行终端命令'}</span>
+        <span>${mode === 'work' ? (currentWorkspace() ? '操作权限可在下方调整' : '选择文件夹后即可开始') : '输入 / 查看命令，输入 ! 运行终端命令'}</span>
       </div>
     </div>
   `;
@@ -859,6 +859,9 @@ function handleMessageClick(event) {
   if (suggest) {
     inputEl.value = suggest.dataset.prompt || '';
     autosize();
+    updateSendButton();
+    updateOptimizeButton();
+    updateComposerHint();
     inputEl.focus();
     return;
   }

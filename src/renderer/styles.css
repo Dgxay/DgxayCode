@@ -3839,3 +3839,53 @@ input[type='range']:active::-webkit-slider-thumb {
     max-width: 150px;
   }
 }
+
+/* Keep the documented themes and motion intact; simplify the empty state copy. */
+.hero {
+  max-width: 590px;
+  text-align: left;
+  margin-top: 12vh;
+}
+
+.hero h1 {
+  font-size: 25px;
+  letter-spacing: -0.02em;
+}
+
+.hero > p {
+  margin-left: 0;
+  max-width: 540px;
+  font-size: 13.5px;
+}
+
+.suggests {
+  gap: 8px 24px;
+  margin-top: 24px;
+}
+
+.suggest {
+  min-height: 50px;
+  padding: 10px 8px;
+  transition: background 0.14s ease;
+}
+
+.suggest:hover {
+  background: var(--surface);
+  transform: none;
+}
+
+.suggest:hover .s-title {
+  color: var(--accent-ink);
+}
+
+.hero-foot {
+  justify-content: flex-start;
+  margin-top: 16px;
+  font-size: 11.5px;
+}
+
+@media (max-width: 860px) {
+  .hero {
+    margin-top: 8vh;
+  }
+}
