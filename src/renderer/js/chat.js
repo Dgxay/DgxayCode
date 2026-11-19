@@ -64,7 +64,7 @@ let slashMode = 'commands';
 let skillsCache = [];
 let skillsLoaded = false;
 
-const ASSISTANT_AVATAR = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 6.9A2.9 2.9 0 0 1 7.1 4h9.8a2.9 2.9 0 0 1 2.9 2.9v6.2a2.9 2.9 0 0 1-2.9 2.9H9.7L5.2 19.4V6.9Z" fill="#fff"/></svg>`;
+const ASSISTANT_AVATAR = '<img src="assets/logo-mark.png" alt="DgxayCode" />';
 
 const SUGGESTIONS = {
   chat: [
@@ -293,7 +293,9 @@ function heroHtml() {
   const model = activeModel();
   const perm = PERMISSIONS[currentPermission()];
 
-  const title = mode === 'work' ? '开始一项工作' : '开始对话';
+  const hour = new Date().getHours();
+  const greeting = hour < 6 ? '夜深了' : hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好';
+  const title = mode === 'work' ? `${greeting}，今天要处理什么？` : `${greeting}，今天想做点什么？`;
   const sub =
     mode === 'work'
       ? currentWorkspace()

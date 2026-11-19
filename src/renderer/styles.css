@@ -3889,3 +3889,220 @@ input[type='range']:active::-webkit-slider-thumb {
     margin-top: 8vh;
   }
 }
+
+/* Claude Agent reference layout, adapted to DgxayCode's existing controls. */
+:root[data-theme='dark'] {
+  --l0: #262624;
+  --l1: #30302e;
+  --l2: #1f1e1d;
+  --l3: #292927;
+  --l4: #363633;
+  --canvas: #262624;
+  --bg: #262624;
+  --sidebar: #1f1e1d;
+  --surface: #30302e;
+  --surface-2: #2c2c2a;
+  --surface-muted: #1b1b19;
+  --surface-hover: #363633;
+  --line: #3f3e3b;
+  --line-strong: #55534f;
+  --text: #faf9f5;
+  --text-2: #c4c1b9;
+  --text-3: #9c9a92;
+  --accent: var(--blue);
+  --accent-hover: var(--blue-strong);
+  --accent-ink: #91adff;
+}
+
+body {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.titlebar,
+.sidebar {
+  background: var(--sidebar);
+}
+
+.tb-brand {
+  font-family: Georgia, 'Songti SC', serif;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.new-chat {
+  margin-top: 5px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.side-heading {
+  margin-top: 8px;
+  padding-top: 14px;
+  font-size: 12.5px;
+  letter-spacing: 0;
+}
+
+.chat-item {
+  min-height: 36px;
+  border-radius: 8px;
+}
+
+.chat-item.active {
+  background: color-mix(in srgb, var(--text) 7%, transparent);
+}
+
+.side-footer {
+  padding-top: 12px;
+}
+
+.mode-switch {
+  background: transparent;
+  padding: 2px;
+}
+
+.mode-switch button.active {
+  background: var(--surface);
+}
+
+.chat-head {
+  height: 46px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 18px;
+}
+
+.ch-center {
+  order: 0;
+  max-width: none;
+  margin-right: auto;
+  text-align: left;
+}
+
+.ch-left {
+  order: 1;
+}
+
+.ch-right {
+  order: 2;
+}
+
+.ch-center h2 {
+  font-size: 14px;
+  font-weight: 450;
+}
+
+.ch-meta,
+.mode-chip {
+  display: none;
+}
+
+.messages {
+  padding: 18px 24px 8px;
+}
+
+.msg-flow {
+  width: min(736px, 100%);
+  gap: 28px;
+}
+
+.hero {
+  max-width: 720px;
+  margin-top: 0;
+  text-align: center;
+}
+
+.hero h1 {
+  font: 400 34px/1.25 Georgia, 'Songti SC', 'Noto Serif SC', serif;
+  letter-spacing: -0.02em;
+}
+
+.hero > p {
+  margin: 12px auto 0;
+  max-width: 520px;
+  font-size: 14px;
+  color: var(--text-3);
+}
+
+.suggests {
+  gap: 5px;
+  margin: 26px auto 0;
+  max-width: 600px;
+}
+
+.suggest {
+  min-height: 54px;
+  padding: 11px 12px;
+  border-radius: 9px;
+}
+
+.suggest:hover {
+  background: color-mix(in srgb, var(--text) 6%, transparent);
+  transform: none;
+}
+
+.hero-foot {
+  justify-content: center;
+  margin-top: 22px;
+  font-size: 11.5px;
+}
+
+.msg.user .bubble {
+  background: var(--surface-muted);
+  border-radius: 14px;
+  padding: 10px 16px;
+}
+
+.msg.assistant .md {
+  font: 400 16px/1.75 Georgia, 'Songti SC', 'Noto Serif SC', serif;
+}
+
+.msg-avatar.logo-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.logo-avatar img {
+  display: block;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+:root[data-theme='dark'] .logo-avatar img {
+  filter: invert(1);
+}
+
+.composer-zone {
+  padding: 0 24px 18px;
+}
+
+.composer {
+  max-width: 736px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+}
+
+.composer:focus-within,
+:root[data-theme='dark'] .composer:focus-within {
+  background: var(--surface);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2);
+}
+
+#input {
+  font-family: 'Segoe UI Variable Text', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei UI', sans-serif;
+}
+
+.composer-foot {
+  max-width: 736px;
+}
+
+@media (max-width: 860px) {
+  .hero h1 {
+    font-size: 27px;
+  }
+}
