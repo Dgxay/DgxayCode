@@ -10,10 +10,6 @@
 <body data-accent="blue">
   <div class="app" id="app">
     <header class="titlebar">
-      <div class="tb-brand">
-        <img class="logo" src="assets/logo-mark.png" alt="" aria-hidden="true" />
-        <span class="tb-name">DgxayCode</span>
-      </div>
       <div class="tb-drag"></div>
       <div class="tb-controls" id="winControls">
         <button class="win-btn" id="winMin" title="最小化" aria-label="最小化">
@@ -29,58 +25,56 @@
     </header>
 
     <div class="workspace" id="workspace">
-      <aside class="sidebar">
-        <button class="new-chat" id="btnNewChat">
-          <span class="nc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
-          </span>
-          <span class="nc-label">新建对话</span>
-          <kbd id="kbdNewChat">Ctrl N</kbd>
-        </button>
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+          <button class="brand-btn" id="btnMode" aria-haspopup="menu" aria-expanded="false" title="切换 Chat / Work">
+            <span class="brand-word" id="modeLabel">Chat</span>
+            <svg class="brand-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5 12 15.5 18 9.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </button>
+        </div>
+
+        <nav class="side-nav" aria-label="导航">
+          <button class="nav-row" id="btnNewChat">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5v15M4.5 12h15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+            <span>新聊天</span>
+            <kbd id="kbdNewChat">Ctrl N</kbd>
+          </button>
+          <button class="nav-row" id="btnSettings">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.7" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" /></svg>
+            <span>设置</span>
+            <kbd id="kbdSettings">Ctrl ,</kbd>
+          </button>
+        </nav>
 
         <div class="side-heading"><span>对话</span><span class="side-count" id="chatCount"></span></div>
         <div class="chat-list" id="chatList"></div>
         <div class="side-empty" id="sideEmpty" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6a2.5 2.5 0 0 1-2.5 2.5H9.8L5 18.4V6.5Z" /></svg>
           <p>还没有对话</p>
-          <span>从上面的「新建对话」开始</span>
+          <span>从上面的「新聊天」开始</span>
         </div>
 
-        <div class="side-footer">
-          <div class="mode-switch" id="modeSwitch" role="tablist" aria-label="工作模式">
-            <button type="button" data-mode="chat" class="active" role="tab" aria-selected="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v6a2.5 2.5 0 0 1-2.5 2.5H9.8L5 18.4V6.5Z" /></svg>
-              对话
-            </button>
-            <button type="button" data-mode="work" role="tab" aria-selected="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H10l2 2h5.5A2.5 2.5 0 0 1 20 10.5v7A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" /></svg>
-              工作
-            </button>
-          </div>
-          <button class="side-link" id="btnSettings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" /></svg>
-            设置
-            <kbd id="kbdSettings">Ctrl ,</kbd>
-          </button>
+        <div class="side-foot">
+          <span class="sf-name">DgxayCode</span>
+          <span class="sf-version" id="sideVersion">V1.6</span>
         </div>
       </aside>
 
       <main class="main">
-        <section class="chat-view" id="chatView">
-          <header class="chat-head">
-            <div class="ch-left">
-              <span class="mode-chip" id="modeChip" data-mode="chat">对话</span>
-              <button class="icon-btn" id="btnOpenWorkspace" title="打开工作空间" aria-label="打开工作空间" hidden>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H10l2 2h5.5A2.5 2.5 0 0 1 20 10.5v7A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" /></svg>
+        <section class="chat-view is-empty" id="chatView">
+          <header class="topbar">
+            <div class="topbar-left">
+              <button class="icon-btn round" id="btnTheme" title="切换主题" aria-label="切换主题">
+                <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" /></svg>
+                <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor" /><path fill="currentColor" d="M12 2h0a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1Zm0 16a1 1 0 0 1 1 1v2a1 1 0 0 1-2 0v-2a1 1 0 0 1 1-1ZM2 12a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2H3a1 1 0 0 1-1-1Zm16 0a1 1 0 0 1 1-1h2a1 1 0 0 1 0 2h-2a1 1 0 0 1-1-1ZM4.93 4.93a1 1 0 0 1 1.41 0l1.42 1.42a1 1 0 1 1-1.42 1.41L4.93 6.34a1 1 0 0 1 0-1.41Zm11.31 11.31a1 1 0 0 1 1.42 0l1.41 1.42a1 1 0 1 1-1.41 1.41l-1.42-1.41a1 1 0 0 1 0-1.42Zm2.83-11.31a1 1 0 0 1 0 1.41l-1.41 1.42a1 1 0 1 1-1.42-1.42l1.42-1.41a1 1 0 0 1 1.41 0ZM7.76 16.24a1 1 0 0 1 0 1.42l-1.42 1.41a1 1 0 1 1-1.41-1.41l1.41-1.42a1 1 0 0 1 1.42 0Z" /></svg>
               </button>
             </div>
-            <div class="ch-center">
+            <div class="topbar-title">
               <h2 id="chatTitle">新对话</h2>
               <div class="ch-meta" id="chatMeta"></div>
             </div>
-            <div class="ch-right">
-              <button class="icon-btn" id="btnHeaderSettings" title="设置" aria-label="设置">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" /></svg>
+            <div class="topbar-right">
+              <button class="icon-btn round" id="btnOpenWorkspace" title="打开工作空间" aria-label="打开工作空间" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H10l2 2h5.5A2.5 2.5 0 0 1 20 10.5v7A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5v-9Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" /></svg>
               </button>
             </div>
           </header>
@@ -90,12 +84,12 @@
           <div class="composer-zone">
             <div class="composer" id="composer">
               <div class="composer-top" id="composerTop" hidden></div>
-              <textarea id="input" rows="1" placeholder="给 DgxayCode 发送消息"></textarea>
+              <textarea id="input" rows="1" placeholder="询问 DgxayCode" aria-label="输入消息"></textarea>
               <div class="composer-toolbar">
                 <div class="ct-left">
-                  <button class="tool-pill" id="modeHintBtn" title="切换对话 / 工作模式">
+                  <button class="tool-pill" id="modeHintBtn" title="切换 Chat / Work">
                     <span class="dot" id="modeHintDot"></span>
-                    <span id="modeHintText">对话模式</span>
+                    <span id="modeHintText">对话</span>
                   </button>
                   <button class="skill-chip" id="skillChip" hidden title="本对话启用的技能，点击移除">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8L12 3.5Z" /></svg>
@@ -111,9 +105,8 @@
                     </svg>
                   </button>
                   <button class="model-pill" id="modelBtn" title="选择模型">
-                    <span class="mp-dot"></span>
                     <span class="mp-name" id="modelBtnName">选择模型</span>
-                    <svg class="mp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5" /></svg>
+                    <svg class="mp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10l5 5 5-5" /></svg>
                   </button>
                   <button class="optimize-btn" id="optimizeBtn" title="优化提示词" aria-label="优化提示词" disabled>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8L12 3.5Z"/><path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/></svg>
@@ -131,7 +124,7 @@
                 <span class="wb-label">Agent</span>
                 <div class="ws-list" id="agentList"></div>
                 <button class="ws-add" id="agentAdd" title="选择或创建 Agent">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M12 5v14M5 12h14" /></svg>
                   选择
                 </button>
               </div>
@@ -147,6 +140,10 @@
                 <span class="wb-label">权限</span>
                 <div class="perm-list" id="permList" role="radiogroup" aria-label="权限模式"></div>
               </div>
+            </div>
+
+            <div class="suggest-wrap" id="suggestWrap">
+              <button class="suggest-chip" id="suggestChip" aria-haspopup="menu" aria-expanded="false">我可以问些什么？</button>
             </div>
 
             <div class="composer-foot">
@@ -188,7 +185,11 @@
                 数据与关于
               </button>
             </nav>
+<<<<<<< HEAD
             <div class="set-side-foot">DgxayCode <span id="setVersion">V1.5</span></div>
+=======
+            <div class="set-side-foot">DgxayCode <span id="setVersion">V1.6</span></div>
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
           </div>
           <div class="set-main">
             <header class="set-head">

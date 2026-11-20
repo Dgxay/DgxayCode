@@ -1354,7 +1354,11 @@ function renderData() {
         </div>
       </div>
       <div class="kv-list">
+<<<<<<< HEAD
         <dt>版本</dt><dd>V1.5（${escapeHtml(info.version || '1.5.0')}）</dd>
+=======
+        <dt>版本</dt><dd>V1.6</dd>
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
         <dt>运行环境</dt><dd>Electron · ${escapeHtml(info.platform || 'win32')}</dd>
         <dt>接口协议</dt><dd>ChatCompletions · Anthropic Messages · Responses</dd>
         <dt>配置文件</dt><dd>~/.dcb/config.json</dd>

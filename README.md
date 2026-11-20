@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # DgxayCode V1.5
+=======
+# DgxayCode V1.6
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 
 A clean, local-first multi-model AI desktop workspace built with Electron. Chat with any supported provider, hand file and terminal work to the model under a reviewed permission system, and keep full control over what runs on your machine.
 
@@ -12,7 +16,7 @@ A clean, local-first multi-model AI desktop workspace built with Electron. Chat 
 - **MCP management** — a Settings → MCP page to add, start, stop and inspect MCP servers. The model can install a server configuration for you with the `install_mcp_server` tool.
 - **Per-provider review model** — each provider can nominate its own safety reviewer; providers without one fall back to the first (default) provider's reviewer.
 - **OAuth account connections** — Settings → Accounts connects OpenAI, Anthropic, xAI and Google with PKCE (manual code where required).
-- **Interface and motion** — light, dark or follow-system themes. Dark mode avoids pure black and drops every font weight by one step; large corners use continuous curvature (squircle); hierarchy comes from 1–3% micro-contrast steps instead of borders and shadows; streamed characters resolve out of a gaussian blur, and the thinking panel opens with a self-sizing grid transition.
+- **Interface and motion** — a ChatGPT-web layout (260px sidebar, 61px top bar, 768px message column, 28px composer radius) with a Chat / Work dropdown at the top-left of the sidebar; light, dark or follow-system themes, dark using a pure black canvas with #212121 overlays; streamed characters resolve out of a gaussian blur, and the thinking panel opens with a self-sizing grid transition.
 - **Local-first** — configuration, conversations, OAuth tokens and MCP definitions stay in `~/.dcb`.
 
 ## Protocols
@@ -25,7 +29,11 @@ A clean, local-first multi-model AI desktop workspace built with Electron. Chat 
 
 Base URL can be a bare host (`https://api.anthropic.com`), a versioned root (`https://api.openai.com/v1`) or a full endpoint. Tool calls are converted per protocol, so Work mode behaves the same across all three.
 
+<<<<<<< HEAD
 ## Permission model (V1.5)
+=======
+## Permission model (V1.6)
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 
 | Capability | None | Normal | Auto-review | Full |
 | --- | --- | --- | --- | --- |

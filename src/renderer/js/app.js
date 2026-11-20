@@ -13,12 +13,12 @@ import {
   providers,
   emit
 } from './store.js';
-import { $, $$, escapeHtml, toast, openModal, matchesAccel } from './ui.js';
+import { $, escapeHtml, toast, openModal, openMenu, matchesAccel } from './ui.js';
 import { icons } from './icons.js';
 import * as chat from './chat.js';
 import * as settings from './settings.js';
 import { initOnboarding } from './onboarding.js';
-import { initTheme, applyTheme } from './theme.js';
+import { initTheme, applyTheme, currentTheme } from './theme.js';
 import { initSquircle } from './squircle.js';
 import { scheduleWidowGuard } from './typography.js';
 
@@ -83,12 +83,12 @@ function bindStaticEvents() {
     chat.startNewChat();
   });
   $('#btnSettings').addEventListener('click', () => settings.openSettings('providers'));
-  $('#btnHeaderSettings').addEventListener('click', () => settings.openSettings('providers'));
 
-  $$('#modeSwitch button').forEach((btn) => {
-    btn.addEventListener('click', () => setMode(btn.dataset.mode));
-  });
-  $('#modeHintBtn').addEventListener('click', () => setMode(currentMode() === 'work' ? 'chat' : 'work'));
+  const modeBtn = $('#btnMode');
+  modeBtn.addEventListener('click', () => openModeMenu(modeBtn));
+  $('#modeHintBtn').addEventListener('click', (event) => openModeMenu(event.currentTarget));
+  $('#btnTheme').addEventListener('click', toggleTheme);
+  $('#suggestChip')?.addEventListener('click', () => chat.openSuggestionMenu($('#suggestChip')));
 
   $('#wsAdd').addEventListener('click', () => chat.chooseWorkspace());
   $('#wsList').addEventListener('click', handleWorkspaceClick);
@@ -155,17 +155,18 @@ function applyConfigUI() {
   document.documentElement.style.setProperty('--font-scale', String(config.ui?.fontScale || 1));
   applyTheme(config.ui?.theme || 'dark');
 
-  $$('#modeSwitch button').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.mode === (config.ui?.mode || 'chat'));
-    btn.setAttribute('aria-selected', String(btn.classList.contains('active')));
-  });
-
   const kbd = $('#kbdNewChat');
   if (kbd) kbd.textContent = config.shortcuts?.newChat || '';
   const kbdSet = $('#kbdSettings');
   if (kbdSet) kbdSet.textContent = config.shortcuts?.settings || '';
   const ver = $('#setVersion');
+<<<<<<< HEAD
   if (ver && state.info) ver.textContent = 'V1.5';
+=======
+  if (ver && state.info) ver.textContent = 'V1.6';
+  const sideVer = $('#sideVersion');
+  if (sideVer && state.info) sideVer.textContent = `V1.6`;
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 
   // 自动审查模式只在已配置审查模型时可用，移除配置后回落到普通权限
   if (config.ui?.permission === 'auto' && !hasReviewModel() && !autoFallbackPending) {
@@ -179,6 +180,44 @@ function applyConfigUI() {
 let autoFallbackPending = false;
 
 /* ------------------------------ 模式与权限 ------------------------------ */
+
+/** 左上角 Chat 品牌按钮：下拉选择 Chat / Work，锚点可复用（输入框内的模式胶囊也指向它） */
+function openModeMenu(anchor) {
+  const mode = currentMode();
+  const button = $('#btnMode');
+  button?.classList.add('open');
+  button?.setAttribute('aria-expanded', 'true');
+  openMenu(anchor, {
+    width: 300,
+    align: 'start',
+    onClose: () => {
+      button?.classList.remove('open');
+      button?.setAttribute('aria-expanded', 'false');
+      $('#suggestChip')?.setAttribute('aria-expanded', 'false');
+    },
+    items: [
+      {
+        label: 'Chat',
+        desc: '随问随答，不直接改动本地文件',
+        active: mode === 'chat',
+        onClick: () => setMode('chat')
+      },
+      {
+        label: 'Work',
+        desc: '读写工作空间、执行命令，连续完成任务',
+        active: mode === 'work',
+        onClick: () => setMode('work')
+      }
+    ]
+  });
+}
+
+function toggleTheme() {
+  const next = currentTheme() === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  if (!state.config) return;
+  patchConfig({ ui: { ...state.config.ui, theme: next } });
+}
 
 async function setMode(mode) {
   if (!mode || mode === currentMode()) return;

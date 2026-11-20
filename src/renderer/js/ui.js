@@ -81,9 +81,9 @@ export function closeMenu() {
 
 /**
  * @param {HTMLElement} anchor
- * @param {{items: Array, width?: number, align?: 'start'|'end', gap?: number}} options
+ * @param {{items: Array, width?: number, align?: 'start'|'end', gap?: number, onClose?: Function}} options
  */
-export function openMenu(anchor, { items = [], width = 260, align = 'start', gap = 6 } = {}) {
+export function openMenu(anchor, { items = [], width = 260, align = 'start', gap = 6, onClose } = {}) {
   closeMenu();
   const layer = $('#menuLayer');
   const menu = document.createElement('div');
@@ -142,13 +142,26 @@ export function openMenu(anchor, { items = [], width = 260, align = 'start', gap
       matched += 1;
       const el = document.createElement('button');
       el.type = 'button';
-      el.className = `menu-item${item.active ? ' active' : ''}${item.danger ? ' danger' : ''}`;
-      el.innerHTML = `
+      el.className = `menu-item${item.active ? ' active' : ''}${item.danger ? ' danger' : ''}${
+        item.desc ? ' has-desc' : ''
+      }`;
+      if (item.desc) {
+        el.innerHTML = `
+        ${item.icon ? `<span class="mi-icon">${item.icon}</span>` : ''}
+        <span class="mi-main">
+          <span class="mi-title">${escapeHtml(label)}</span>
+          <span class="mi-desc">${escapeHtml(item.desc)}</span>
+        </span>
+        ${item.active ? '<svg class="mi-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' : ''}
+      `;
+      } else {
+        el.innerHTML = `
         ${item.icon ? `<span class="mi-icon">${item.icon}</span>` : ''}
         <span class="mi-label">${escapeHtml(label)}</span>
         ${item.sub ? `<span class="mi-sub">${escapeHtml(item.sub)}</span>` : ''}
         ${item.active ? '<svg class="mi-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>' : ''}
       `;
+      }
       el.addEventListener('click', () => {
         if (item.disabled) return;
         closeMenu();
@@ -210,6 +223,7 @@ export function openMenu(anchor, { items = [], width = 260, align = 'start', gap
       window.removeEventListener('resize', onResize);
       document.removeEventListener('scroll', onScroll, true);
       menu.remove();
+      onClose?.();
     }
   };
   return activeMenu;

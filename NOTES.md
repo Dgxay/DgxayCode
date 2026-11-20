@@ -1,7 +1,12 @@
 # DgxayCode 项目注意事项
 
+<<<<<<< HEAD
 适用版本：**V1.5（1.5.0）**
 最后更新：2026-11-13  
+=======
+适用版本：**V1.6**  
+最后更新：2026-11-20  
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 配套文档：[README-zh.md](./README-zh.md)、[README.md](./README.md)
 
 本文汇总开发、调试、日常使用与打包发布全过程中容易踩坑的地方。开始改代码或分发安装包前，建议先通读第 3、4、10、11 节。
@@ -278,13 +283,16 @@ DCB_HOME=/tmp/dcb-test npm start
 
 ## 10. 界面与代码约定
 
-- 视觉基线：ChatGPT / Claude 风格界面，**单一蓝色强调色 `#2563EB`**；不要引入紫色、渐变或多种高饱和强调色。
-- **层级靠微对比色阶**：`--l0`～`--l4` 每层只差 1%～3% 明度，大容器一律用底色分层，不要加回描边和重阴影。圆角处不要画 1px 边框——连续曲率裁切会把边框在转角切断。
-- **主题**：默认深色，可在设置里切换为浅色 / 跟随系统；token 定义在 `:root` 与 `:root[data-theme='dark']` 两套里。深色底色不用纯黑（`--l0: #1b1c1f`），字重通过 `--fw-1`～`--fw-6` 统一下调 40。新增颜色必须走 token，不要写死十六进制，否则深色模式会露出亮色斑块。
-- **连续曲率圆角**：`squircle.js` 用超椭圆 path 裁切 `.composer`、`.card`、`.menu`、`.modal` 等大圆角容器。被裁切元素的 `box-shadow` 会一起被裁掉，浮层阴影要放到父级 `filter: drop-shadow()`（`.menu-layer`、`.toast-layer`、`.modal-shell`、`.ob-wrap`）。可聚焦控件不做裁切，保留原生 outline。
-- 所有数字通过仅覆盖 `U+0030-0039` 的 `@font-face` 使用等宽字形（Consolas / SF Mono / JetBrains Mono / DejaVu Sans Mono）；正文字体保持不变。新增数字展示时不需要额外设置字体；需要严格等宽的地方（思考计时器）再加 `font-variant-numeric: tabular-nums` 与最小宽度。
+- 视觉基线：**ChatGPT 网页版（未登录页）的实测令牌**，单一蓝色强调色 `#3566F0`；不要引入紫色、渐变或多种高饱和强调色。尺寸也照抄参考稿：侧边栏 260px、顶栏 61px、消息列 768px、输入框圆角 28px、用户气泡 22px。
+- **层级靠底色对比**：浅色画布 `#FCFCFC` + 白卡片；深色画布纯黑 `#000` + 卡片 `#212121`。大容器靠底色分层，不加描边和重阴影；只有输入框、菜单这类浮层用 1px `--line` 描边。
+- **主题**：默认深色，可在设置里切换为浅色 / 跟随系统；token 定义在 `:root` 与 `:root[data-theme='dark']` 两套里。深色下拉菜单、弹窗、卡片统一用 `--surface`（`#212121`），不要用白色浮层。新增颜色必须走 token，不要写死十六进制，否则深色模式会露出亮色斑块。
+- **连续曲率圆角**：`squircle.js` 用超椭圆 path 裁切 `.composer`、`.bubble`、`.card`、`.menu`、`.modal` 等大圆角容器。被裁切元素的 `box-shadow` 会一起被裁掉，浮层阴影要放到父级 `filter: drop-shadow()`（`.menu-layer`、`.toast-layer`、`.modal-shell`、`.ob-wrap`）。可聚焦控件不做裁切，保留原生 outline。
+- **字体**：界面 14px、正文（`.md`）16px/26px、输入框 17px，全部走系统字体栈（`--font-ui`），不再给数字单独换等宽字形；只有代码块、路径等确实需要等宽的地方用 `--font-mono`。
 - 字体全部本地加载，不依赖网络；不要改成 Google Fonts 等远程字体（CSP 也会拦截）。
 - CSP 为 `default-src 'self'`，禁止内联脚本与远程脚本；新增资源必须是本地文件。注意：CSP 的 `style-src` 允许内联样式，`squircle.js` 依赖这一点写 `clip-path`。
+- **壳层结构**：`.titlebar`（36px 拖拽条）→ `.workspace`（`.sidebar` + `.main`）→ `.chat-view`（绝对定位的 `.topbar` + `.messages` + `.composer-zone`）。`.messages` 用 `padding-top: 61px` 给浮层顶栏让位；空状态给 `.chat-view` 加 `.is-empty`，靠 `justify-content: center` 把「标题 + 输入框 + 建议胶囊」整体居中。
+- **模式切换**：左上角 `#btnMode`（Chat / Work 下拉）是唯一入口；输入框工具条里的 `#modeHintBtn` 复用同一个菜单，只是锚点不同。菜单项带 `desc` 时由 `openMenu` 渲染成两行，不要再写第二套下拉。
+- 参考稿里没有对应功能的入口（图像、购物、插件、套餐、帮助、深度研究、登录）已删除，不要加回来。
 - 没有前端构建，也没有热更新；改完 HTML/CSS/JS 需要重新加载窗口（开发时可用开发者工具刷新）。
 - HTML 的 `id` 与渲染层强耦合；重命名 `#input`、`#sendBtn`、`#permList`、`#setBody` 等会导致功能静默失效，改结构后全局搜索引用。
 - 新增按钮/菜单优先复用现有 `btn`、`menu`、`modal` 组件类，避免出现第二套视觉语言。弹窗结构是 `.modal-shell`（持有投影与宽度）包 `.modal`（被裁切的本体），改弹窗时两者都要顾到。
@@ -297,11 +305,11 @@ DCB_HOME=/tmp/dcb-test npm start
 ### 10.1 图标与品牌标记
 
 - **来源唯一**：所有图标由 `scripts/make_icons.py` 从 `build/icon-master.png`（256×256、纯黑方形底 + 白色几何字标）派生。原始素材留在 `build/icon-source.ico`，母版缺失时脚本取其最大 PNG 帧补齐并把导出时的半透明边压成实色。换标只替换这两者之一后重跑脚本，不要手改产物。
-- **界面用法**：标题栏与引导页用 `assets/logo-mark.png`（`.logo`，方形占位 21/24px），关于卡片用 `assets/logo-wordmark.png`（高 32px、宽度自适应）。两者都是脚本从母版抠出的「透明底 + 纯黑字标」，`[data-theme='dark']` 下由 `.logo { filter: invert(1) }` 统一反相；不要为深色单独切图，也不要用 `filter` 之外的染色方案。
+- **界面用法**：引导页用 `assets/logo-mark.png`（`.logo`，24×24 占位），关于卡片用 `assets/logo-wordmark.png`（高 32px、宽度自适应）。标题栏不再放品牌标记——左上角是 Chat / Work 下拉按钮。两者都是脚本从母版抠出的「透明底 + 纯黑字标」，`[data-theme='dark']` 下由 `.logo { filter: invert(1) }` 统一反相；不要为深色单独切图，也不要用 `filter` 之外的染色方案。
 - **系统图标**：`build/icon.{png,ico,icns}` 与 `assets/icon.png` 是黑底白字标的整块图，边缘按 `TILE_RADIUS`（默认 0.18）做圆角遮罩抗锯齿；改 0 即回到源文件的直角方块。母版自带深色底，不再需要旧版的浅色底板（`OS_PLATE` 已移除）。
 - **尺寸阶梯**：16–256 直接取 `build/icon-source.ico` 里的原生帧（作者已按小尺寸调过笔画），512/1024 由 256 帧放大后做对比增强重建，避免灰边发糊。新增或替换源 ICO 时保持这套尺寸梯队，缺帧会退回放大路径。
 - **可访问性**：三处品牌标记都是装饰性图片，保持 `alt=""` 与 `aria-hidden="true"`，产品名由相邻文本承担，避免读屏重复朗读；功能图标（`icons.js`）继续使用 24×24、`currentColor`、1.7 描边，品牌替换不改动它们的语义与标签。
-- **布局约束**：`.logo` 在标题栏固定 21×21、引导页 24×24，换图不要改这两个尺寸与 flex gap；关于卡片只约束高度，宽度随字标比例自适应，避免撑破卡片。
+- **布局约束**：`.logo` 在引导页固定 24×24；关于卡片只约束高度（32px），宽度随字标比例自适应，避免撑破卡片。`.brand-word` 的字号与字重由左上角按钮统一控制，换文案不要改字号。
 
 ---
 
@@ -309,7 +317,11 @@ DCB_HOME=/tmp/dcb-test npm start
 
 ### 11.1 版本号要改全
 
+<<<<<<< HEAD
 版本号不是单一来源，至少检查以下位置（可直接全局搜索当前版本号）：
+=======
+版本号不是单一来源，至少检查以下位置（可直接全局搜索 `V1.6` / `DgxayCode/1.6`）：
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 
 - `package.json` → `version`
 - `package-lock.json` → 根 `version` 与 `packages[""].version`

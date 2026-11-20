@@ -53,7 +53,7 @@ function createWindow() {
     minHeight: 660,
     show: false,
     frame: process.platform === 'darwin',
-    backgroundColor: bootDark ? '#17181A' : '#F7F7F5',
+    backgroundColor: bootDark ? '#000000' : '#FCFCFC',
     title: 'DgxayCode',
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     trafficLightPosition: { x: 16, y: 18 },

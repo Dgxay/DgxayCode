@@ -3,7 +3,11 @@
 
 用法：
     python scripts/make-deb.py
+<<<<<<< HEAD
     python scripts/make-deb.py --app-dir dist/linux-unpacked --out dist/DgxayCode-1.5.0-amd64.deb
+=======
+    python scripts/make-deb.py --app-dir dist/linux-unpacked --out dist/DgxayCode-<version>-amd64.deb
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 """
 import argparse
 import gzip

@@ -1,7 +1,11 @@
 {
   "name": "dgxay-code",
   "productName": "DgxayCode",
+<<<<<<< HEAD
   "version": "1.5.0",
+=======
+  "version": "1.6.0",
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
   "description": "DgxayCode",
   "author": "Dgxay",
   "license": "GPL-3.0-only",

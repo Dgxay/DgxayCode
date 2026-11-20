@@ -34,7 +34,6 @@ import {
   openMenu,
   openModal,
   formatTime,
-  formatRelative,
   confirmDialog,
   copyText,
   uid
@@ -64,20 +63,23 @@ let slashMode = 'commands';
 let skillsCache = [];
 let skillsLoaded = false;
 
+<<<<<<< HEAD
 const ASSISTANT_AVATAR = '<img src="assets/logo-mark.png" alt="DgxayCode" />';
 
+=======
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 const SUGGESTIONS = {
   chat: [
-    { icon: icons.book, title: '写一段产品介绍', desc: '为一款新应用打磨文案', prompt: '帮我写一段有感染力的产品介绍，产品是：' },
-    { icon: icons.code, title: '解释一段代码', desc: '看懂逻辑与潜在问题', prompt: '请逐段解释下面这段代码，并指出潜在问题：\n\n```\n\n```' },
-    { icon: icons.calendar, title: '规划周末行程', desc: '两天的轻松路线', prompt: '帮我规划一个周末两天的行程，城市是：，偏好：' },
-    { icon: icons.pencil, title: '润色这封邮件', desc: '更专业、更得体', prompt: '请帮我润色下面这封邮件，保持原意，语气专业友好：\n\n' }
+    { title: '写一段产品介绍', desc: '为一款新应用打磨文案', prompt: '帮我写一段有感染力的产品介绍，产品是：' },
+    { title: '解释一段代码', desc: '看懂逻辑与潜在问题', prompt: '请逐段解释下面这段代码，并指出潜在问题：\n\n```\n\n```' },
+    { title: '规划周末行程', desc: '两天的轻松路线', prompt: '帮我规划一个周末两天的行程，城市是：，偏好：' },
+    { title: '润色这封邮件', desc: '更专业、更得体', prompt: '请帮我润色下面这封邮件，保持原意，语气专业友好：\n\n' }
   ],
   work: [
-    { icon: icons.folder, title: '整理这个文件夹', desc: '归类、重命名，生成索引', prompt: '帮我整理当前工作空间：先浏览目录结构，再给出整理方案，最后按方案重命名或归类文件，并生成一份索引。' },
-    { icon: icons.book, title: '生成一份周报', desc: '读取记录并汇总输出', prompt: '请阅读工作空间里的工作记录，汇总生成一份本周周报，保存为 markdown 文件。' },
-    { icon: icons.code, title: '分析代码结构', desc: '输出模块说明文档', prompt: '分析当前工作空间的代码结构，说明主要模块的职责与依赖关系，并生成一份 ARCHITECTURE.md。' },
-    { icon: icons.terminal, title: '批量处理文件', desc: '写个脚本并执行', prompt: '先列出工作空间里的文件，然后写一个脚本完成批量处理（具体需求：），保存脚本并执行。' }
+    { title: '整理这个文件夹', desc: '归类、重命名，生成索引', prompt: '帮我整理当前工作空间：先浏览目录结构，再给出整理方案，最后按方案重命名或归类文件，并生成一份索引。' },
+    { title: '生成一份周报', desc: '读取记录并汇总输出', prompt: '请阅读工作空间里的工作记录，汇总生成一份本周周报，保存为 markdown 文件。' },
+    { title: '分析代码结构', desc: '输出模块说明文档', prompt: '分析当前工作空间的代码结构，说明主要模块的职责与依赖关系，并生成一份 ARCHITECTURE.md。' },
+    { title: '批量处理文件', desc: '写个脚本并执行', prompt: '先列出工作空间里的文件，然后写一个脚本完成批量处理（具体需求：），保存脚本并执行。' }
   ]
 };
 
@@ -176,13 +178,16 @@ export function refreshChrome() {
   }
 
   const mode = currentMode();
-  const chip = $('#modeChip');
-  chip.dataset.mode = mode;
-  chip.textContent = mode === 'work' ? '工作' : '对话';
+  const label = $('#modeLabel');
+  if (label) label.textContent = mode === 'work' ? 'Work' : 'Chat';
+  document.body.dataset.mode = mode;
 
   const hintText = $('#modeHintText');
-  if (hintText) hintText.textContent = mode === 'work' ? '工作模式' : '对话模式';
+  if (hintText) hintText.textContent = mode === 'work' ? '工作' : '对话';
+  const hintBtn = $('#modeHintBtn');
+  if (hintBtn) hintBtn.title = `当前${mode === 'work' ? '工作' : '对话'}模式，点击切换`;
 
+<<<<<<< HEAD
   $('#modeHintBtn').title = `点击切换到${mode === 'work' ? '对话' : '工作'}模式`;
 
   inputEl.placeholder =
@@ -191,6 +196,9 @@ export function refreshChrome() {
       : '写消息…';
 
   document.body.dataset.mode = mode;
+=======
+  inputEl.placeholder = mode === 'work' ? '描述任务，AI 会连续执行直到完成' : '询问 DgxayCode';
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
   updateComposerHint();
   refreshSkillChip();
   refreshContextRing();
@@ -214,11 +222,11 @@ function refreshSidebar() {
   list.innerHTML = chats
     .map(
       (chat) => `
-      <div class="chat-item ${chat.id === state.activeChatId ? 'active' : ''}" data-chat="${chat.id}">
-        <span class="ci-dot"></span>
+      <div class="chat-item ${chat.id === state.activeChatId ? 'active' : ''}" data-chat="${chat.id}" title="${escapeHtml(
+        chat.title || '新对话'
+      )}">
         <span class="ci-title">${escapeHtml(chat.title || '新对话')}</span>
-        <span class="ci-time">${escapeHtml(formatRelative(chat.updatedAt))}</span>
-        <button class="ci-del" data-del="${chat.id}" title="删除对话">
+        <button class="ci-del" data-del="${chat.id}" title="删除对话" aria-label="删除对话">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>`
@@ -257,7 +265,6 @@ function refreshHeader() {
   const mode = currentMode();
   const perm = PERMISSIONS[currentPermission()];
   const meta = [];
-  meta.push(mode === 'work' ? '工作模式' : '对话模式');
   if (mode === 'work') {
     meta.push(currentWorkspace() ? workspaceLabel(currentWorkspace()) : '未选择工作空间');
     meta.push(perm?.label || '');
@@ -270,8 +277,13 @@ function refreshHeader() {
 
 function renderThread() {
   const chat = getChat();
-  if (!chat || !chat.messages.length) {
-    messagesEl.innerHTML = `<div class="msg-flow">${heroHtml()}</div>`;
+  const isEmpty = !chat || !chat.messages.length;
+  $('#chatView')?.classList.toggle('is-empty', isEmpty);
+  const suggestWrap = $('#suggestWrap');
+  if (suggestWrap) suggestWrap.hidden = !isEmpty;
+
+  if (isEmpty) {
+    messagesEl.innerHTML = heroHtml();
     messagesEl.scrollTop = 0;
     return;
   }
@@ -300,38 +312,54 @@ function heroHtml() {
     mode === 'work'
       ? currentWorkspace()
         ? `工作空间 ${workspaceLabel(currentWorkspace())} · ${perm.label}`
+<<<<<<< HEAD
         : '先选择工作空间文件夹，便于指定任务的工作目录。'
+=======
+        : '在下方选择一个文件夹作为工作空间，生成的文件都会存放在那里。'
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
       : model
         ? '输入问题，或粘贴一段代码。'
         : '还没有配置模型，请先在设置中添加供应商与模型。';
-
-  const cards = (SUGGESTIONS[mode] || SUGGESTIONS.chat)
-    .map(
-      (item) => `
-      <button class="suggest" data-prompt="${escapeHtml(item.prompt)}">
-        <span class="s-icon">${item.icon}</span>
-        <span>
-          <span class="s-title">${item.title}</span>
-          <span class="s-desc">${item.desc}</span>
-        </span>
-      </button>`
-    )
-    .join('');
 
   return `
     <div class="hero">
       <h1>${title}</h1>
       <p>${sub}</p>
+<<<<<<< HEAD
       <div class="suggests">${cards}</div>
       <div class="hero-foot">
         <span>${mode === 'work' ? (currentWorkspace() ? '操作权限可在下方调整' : '选择文件夹后即可开始') : '输入 / 查看命令，输入 ! 运行终端命令'}</span>
       </div>
+=======
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
     </div>
   `;
 }
 
-function messageHtml(msg) {
-  if (msg.role === 'terminal') return terminalHtml(msg);
+/** 空状态下方的「我可以问些什么？」：列出当前模式的开场提示，点选后填入输入框 */
+export function openSuggestionMenu(anchor) {
+  const items = (SUGGESTIONS[currentMode()] || SUGGESTIONS.chat).map((item) => ({
+    label: item.title,
+    desc: item.desc,
+    onClick: () => {
+      inputEl.value = item.prompt;
+      autosize();
+      updateSendButton();
+      updateOptimizeButton();
+      inputEl.focus();
+      inputEl.setSelectionRange(inputEl.value.length, inputEl.value.length);
+    }
+  }));
+  anchor.setAttribute('aria-expanded', 'true');
+  openMenu(anchor, {
+    width: 320,
+    align: 'start',
+    items,
+    onClose: () => anchor.setAttribute('aria-expanded', 'false')
+  });
+}
+
+function messageHtml(msg) {  if (msg.role === 'terminal') return terminalHtml(msg);
   if (msg.role === 'user') {
     return `
       <div class="msg user" data-id="${msg._id}">
@@ -358,7 +386,6 @@ function messageHtml(msg) {
 
   return `
     <div class="msg assistant ${msg.error && !msg.content ? 'error' : ''}" data-id="${msg._id}">
-      <div class="msg-avatar logo-avatar">${ASSISTANT_AVATAR}</div>
       <div class="msg-body">
         ${reasoning}
         ${tools}
@@ -857,6 +884,7 @@ function handleMessageClick(event) {
     }
     return;
   }
+<<<<<<< HEAD
   const suggest = event.target.closest('.suggest');
   if (suggest) {
     inputEl.value = suggest.dataset.prompt || '';
@@ -867,6 +895,8 @@ function handleMessageClick(event) {
     inputEl.focus();
     return;
   }
+=======
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
   const fileChip = event.target.closest('.file-chip');
   if (fileChip) {
     window.dcb.showItem(fileChip.dataset.path);

@@ -335,7 +335,11 @@ async function execute(name, args, ctx) {
       try {
         const res = await fetch(url, {
           method: (args.method || 'GET').toUpperCase(),
+<<<<<<< HEAD
           headers: { 'User-Agent': 'Mozilla/5.0 DgxayCode/1.5.0', ...(args.body ? { 'Content-Type': 'application/json' } : {}) },
+=======
+          headers: { 'User-Agent': 'Mozilla/5.0 DgxayCode/1.6', ...(args.body ? { 'Content-Type': 'application/json' } : {}) },
+>>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
           body: args.body || undefined,
           signal: controller.signal
         });
