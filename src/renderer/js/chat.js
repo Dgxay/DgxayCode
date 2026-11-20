@@ -63,11 +63,6 @@ let slashMode = 'commands';
 let skillsCache = [];
 let skillsLoaded = false;
 
-<<<<<<< HEAD
-const ASSISTANT_AVATAR = '<img src="assets/logo-mark.png" alt="DgxayCode" />';
-
-=======
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 const SUGGESTIONS = {
   chat: [
     { title: '写一段产品介绍', desc: '为一款新应用打磨文案', prompt: '帮我写一段有感染力的产品介绍，产品是：' },
@@ -187,18 +182,7 @@ export function refreshChrome() {
   const hintBtn = $('#modeHintBtn');
   if (hintBtn) hintBtn.title = `当前${mode === 'work' ? '工作' : '对话'}模式，点击切换`;
 
-<<<<<<< HEAD
-  $('#modeHintBtn').title = `点击切换到${mode === 'work' ? '对话' : '工作'}模式`;
-
-  inputEl.placeholder =
-    mode === 'work'
-      ? '描述要处理的任务…'
-      : '写消息…';
-
-  document.body.dataset.mode = mode;
-=======
   inputEl.placeholder = mode === 'work' ? '描述任务，AI 会连续执行直到完成' : '询问 DgxayCode';
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
   updateComposerHint();
   refreshSkillChip();
   refreshContextRing();
@@ -312,11 +296,7 @@ function heroHtml() {
     mode === 'work'
       ? currentWorkspace()
         ? `工作空间 ${workspaceLabel(currentWorkspace())} · ${perm.label}`
-<<<<<<< HEAD
-        : '先选择工作空间文件夹，便于指定任务的工作目录。'
-=======
         : '在下方选择一个文件夹作为工作空间，生成的文件都会存放在那里。'
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
       : model
         ? '输入问题，或粘贴一段代码。'
         : '还没有配置模型，请先在设置中添加供应商与模型。';
@@ -325,13 +305,6 @@ function heroHtml() {
     <div class="hero">
       <h1>${title}</h1>
       <p>${sub}</p>
-<<<<<<< HEAD
-      <div class="suggests">${cards}</div>
-      <div class="hero-foot">
-        <span>${mode === 'work' ? (currentWorkspace() ? '操作权限可在下方调整' : '选择文件夹后即可开始') : '输入 / 查看命令，输入 ! 运行终端命令'}</span>
-      </div>
-=======
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
     </div>
   `;
 }
@@ -884,19 +857,6 @@ function handleMessageClick(event) {
     }
     return;
   }
-<<<<<<< HEAD
-  const suggest = event.target.closest('.suggest');
-  if (suggest) {
-    inputEl.value = suggest.dataset.prompt || '';
-    autosize();
-    updateSendButton();
-    updateOptimizeButton();
-    updateComposerHint();
-    inputEl.focus();
-    return;
-  }
-=======
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
   const fileChip = event.target.closest('.file-chip');
   if (fileChip) {
     window.dcb.showItem(fileChip.dataset.path);

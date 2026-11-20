@@ -160,13 +160,9 @@ function applyConfigUI() {
   const kbdSet = $('#kbdSettings');
   if (kbdSet) kbdSet.textContent = config.shortcuts?.settings || '';
   const ver = $('#setVersion');
-<<<<<<< HEAD
-  if (ver && state.info) ver.textContent = 'V1.5';
-=======
   if (ver && state.info) ver.textContent = 'V1.6';
   const sideVer = $('#sideVersion');
   if (sideVer && state.info) sideVer.textContent = `V1.6`;
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 
   // 自动审查模式只在已配置审查模型时可用，移除配置后回落到普通权限
   if (config.ui?.permission === 'auto' && !hasReviewModel() && !autoFallbackPending) {

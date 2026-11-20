@@ -1,12 +1,7 @@
 # DgxayCode 项目注意事项
 
-<<<<<<< HEAD
-适用版本：**V1.5（1.5.0）**
-最后更新：2026-11-13  
-=======
 适用版本：**V1.6**  
 最后更新：2026-11-20  
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 配套文档：[README-zh.md](./README-zh.md)、[README.md](./README.md)
 
 本文汇总开发、调试、日常使用与打包发布全过程中容易踩坑的地方。开始改代码或分发安装包前，建议先通读第 3、4、10、11 节。
@@ -317,11 +312,7 @@ DCB_HOME=/tmp/dcb-test npm start
 
 ### 11.1 版本号要改全
 
-<<<<<<< HEAD
-版本号不是单一来源，至少检查以下位置（可直接全局搜索当前版本号）：
-=======
 版本号不是单一来源，至少检查以下位置（可直接全局搜索 `V1.6` / `DgxayCode/1.6`）：
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
 
 - `package.json` → `version`
 - `package-lock.json` → 根 `version` 与 `packages[""].version`
