@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-# DgxayCode V1.5
-=======
 # DgxayCode V1.6
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
-
 A clean, local-first multi-model AI desktop workspace built with Electron. Chat with any supported provider, hand file and terminal work to the model under a reviewed permission system, and keep full control over what runs on your machine.
 
 ## Highlights
