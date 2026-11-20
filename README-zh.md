@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-# DgxayCode V1.5
-=======
 # DgxayCode V1.6
->>>>>>> a582940 (Seriously, bro. Look V1.5 and V1.6, is that OK?)
-
 一个简洁、明快的多模型 AI 桌面工作台，基于 Electron 构建。支持三种主流模型协议，在对话模式与工作模式之间切换，并让 AI 在分级权限与自动审查的保护下直接处理本地文件与终端命令。
 
 ## 核心功能
