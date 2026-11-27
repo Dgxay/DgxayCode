@@ -143,16 +143,20 @@ function bindStaticEvents() {
 
   on('config', () => {
     applyConfigUI();
-    chat.refreshChrome();
   });
 }
+
+let lastFontScale = null;
 
 function applyConfigUI() {
   const config = state.config;
   if (!config) return;
   document.body.dataset.accent = config.ui?.accent === 'coral' || !config.ui?.accent ? 'blue' : config.ui.accent;
   document.body.dataset.mode = config.ui?.mode === 'work' ? 'work' : 'chat';
-  document.documentElement.style.setProperty('--font-scale', String(config.ui?.fontScale || 1));
+  const fontScale = config.ui?.fontScale || 1;
+  document.documentElement.style.setProperty('--font-scale', String(fontScale));
+  if (lastFontScale !== null && lastFontScale !== fontScale) scheduleWidowGuard();
+  lastFontScale = fontScale;
   applyTheme(config.ui?.theme || 'dark');
 
   const kbd = $('#kbdNewChat');
@@ -160,9 +164,9 @@ function applyConfigUI() {
   const kbdSet = $('#kbdSettings');
   if (kbdSet) kbdSet.textContent = config.shortcuts?.settings || '';
   const ver = $('#setVersion');
-  if (ver && state.info) ver.textContent = 'V1.6';
+  if (ver && state.info) ver.textContent = 'V1.7';
   const sideVer = $('#sideVersion');
-  if (sideVer && state.info) sideVer.textContent = `V1.6`;
+  if (sideVer && state.info) sideVer.textContent = `V1.7`;
 
   // 自动审查模式只在已配置审查模型时可用，移除配置后回落到普通权限
   if (config.ui?.permission === 'auto' && !hasReviewModel() && !autoFallbackPending) {
@@ -235,8 +239,6 @@ async function setMode(mode) {
   await patchConfig({ ui: { ...state.config.ui, mode } });
   const chatData = state.chats.find((c) => c.id === state.activeChatId);
   if (chatData && !chatData.messages.length) chatData.mode = mode;
-  applyConfigUI();
-  chat.refreshAll();
   if (mode === 'work') toast('已进入工作模式，AI 可以直接处理文件');
 }
 
@@ -254,7 +256,6 @@ async function setPermission(permission) {
   }
 
   await patchConfig({ ui: { ...state.config.ui, permission } });
-  chat.refreshAll();
   const messages = {
     none: '无权限已开启：AI 只能只读访问工作空间',
     normal: '普通权限已开启：每次操作都会先询问你',
@@ -315,13 +316,13 @@ async function handleWorkspaceClick(event) {
           recentWorkspaces: (work.recentWorkspaces || []).filter((p) => p !== path)
         }
       });
-      chat.refreshAll();
+      chat.refreshConfig();
       toast('已取消工作空间');
     } else {
       await patchConfig({
         work: { ...work, recentWorkspaces: (work.recentWorkspaces || []).filter((p) => p !== path) }
       });
-      chat.refreshAll();
+      chat.refreshConfig();
     }
     return;
   }
@@ -335,7 +336,7 @@ async function handleWorkspaceClick(event) {
   }
   const recents = [path, ...recentWorkspaces().filter((p) => p !== path)].slice(0, 6);
   await patchConfig({ work: { ...state.config.work, workspace: path, recentWorkspaces: recents } });
-  chat.refreshAll();
+  chat.refreshConfig();
   toast(`工作空间：${workspaceLabel(path)}`);
 }
 

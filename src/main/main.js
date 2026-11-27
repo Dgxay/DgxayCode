@@ -950,16 +950,51 @@ ipcMain.handle('chat:send', async (event, payload = {}) => {
   const controller = new AbortController();
   runningRequests.set(requestId, controller);
 
-  const emit = (type, data = {}) => {
+  let pendingDelta = '';
+  let pendingReasoning = '';
+  let flushTimer = null;
+  let lastFlushAt = 0;
+
+  const sendNow = (type, data = {}) => {
     if (event.sender.isDestroyed()) return;
     event.sender.send('chat:event', { requestId, type, ...data });
+  };
+  const flushPending = () => {
+    if (flushTimer) {
+      clearTimeout(flushTimer);
+      flushTimer = null;
+    }
+    if (pendingDelta) {
+      const text = pendingDelta;
+      pendingDelta = '';
+      sendNow('delta', { text });
+    }
+    if (pendingReasoning) {
+      const text = pendingReasoning;
+      pendingReasoning = '';
+      sendNow('reasoning', { text });
+    }
+    lastFlushAt = Date.now();
+  };
+  const emit = (type, data = {}) => {
+    if (type === 'delta' || type === 'reasoning') {
+      if (type === 'delta') pendingDelta += data.text || '';
+      else pendingReasoning += data.text || '';
+      if (!flushTimer) {
+        const wait = Math.max(0, Math.min(32, 32 - (Date.now() - lastFlushAt)));
+        if (wait <= 0) flushPending();
+        else flushTimer = setTimeout(flushPending, wait);
+      }
+      return;
+    }
+    flushPending();
+    sendNow(type, data);
   };
 
   const settings = config.chat || {};
   // 模型级最大输出优先于通用设置；留空（0）时回落到通用设置
   const modelConfig = (provider.models || []).find((item) => item.id === modelId);
   const modelMaxTokens = Number(modelConfig?.maxTokens) > 0 ? Number(modelConfig.maxTokens) : 0;
-  const providerAuth = await resolveProviderAuth(provider);
   let finalText = '';
   let reasoningText = '';
   let totalUsage = null;
@@ -968,6 +1003,7 @@ ipcMain.handle('chat:send', async (event, payload = {}) => {
   let aborted = false;
 
   try {
+    const providerAuth = await resolveProviderAuth(provider);
     const maxSteps = mode === 'work' && useTools ? 24 : 8;
     let continuationCount = 0;
 
@@ -1109,7 +1145,6 @@ ipcMain.handle('chat:send', async (event, payload = {}) => {
       break;
     }
 
-    emit('done', { text: finalText, usage: totalUsage });
     return {
       ok: true,
       requestId,
@@ -1146,6 +1181,7 @@ ipcMain.handle('chat:send', async (event, payload = {}) => {
       files
     };
   } finally {
+    flushPending();
     runningRequests.delete(requestId);
     emit('end', { aborted });
   }

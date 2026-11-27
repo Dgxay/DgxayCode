@@ -12,7 +12,7 @@ import {
 } from './store.js';
 import { $, $$, escapeHtml, toast, openModal, confirmDialog, accelFromEvent, uid } from './ui.js';
 import { icons } from './icons.js';
-import { refreshAll, refreshChrome } from './chat.js';
+import { refreshConfig, refreshChrome } from './chat.js';
 import { PROTOCOLS, PROTOCOL_ORDER, protocolMeta, protocolOf, protocolCardsHtml } from './protocols.js';
 import { THEME_OPTIONS, applyTheme, themePreference } from './theme.js';
 import { applyWidowGuard } from './typography.js';
@@ -61,8 +61,22 @@ export function closeSettings() {
   state.settingsOpen = false;
   $('#settingsView').hidden = true;
   $('#chatView').hidden = false;
-  refreshAll();
+  refreshConfig();
   $('#input')?.focus();
+}
+
+let configRenderQueued = false;
+
+function scheduleConfigRender() {
+  if (configRenderQueued) return;
+  configRenderQueued = true;
+  requestAnimationFrame(() => {
+    configRenderQueued = false;
+    if (!state.settingsOpen || recordingKey || document.querySelector('.modal')) return;
+    const active = document.activeElement;
+    const editing = active && $('#settingsView').contains(active) && /INPUT|TEXTAREA|SELECT/.test(active.tagName);
+    if (!editing) renderTab(currentTab);
+  });
 }
 
 export function initSettings() {
@@ -95,12 +109,8 @@ export function initSettings() {
     }
   });
   on('config', () => {
-    if (state.settingsOpen && !recordingKey && !document.querySelector('.modal')) {
-      // 外部配置变化时保持界面同步（避免打断输入）
-      const active = document.activeElement;
-      const editing = active && $('#settingsView').contains(active) && /INPUT|TEXTAREA|SELECT/.test(active.tagName);
-      if (!editing) renderTab(currentTab);
-    }
+    // 外部配置变化时保持界面同步（避免打断输入，并把一帧内的多次变化合并）
+    if (state.settingsOpen) scheduleConfigRender();
   });
 }
 
@@ -1354,7 +1364,7 @@ function renderData() {
         </div>
       </div>
       <div class="kv-list">
-        <dt>版本</dt><dd>V1.6</dd>
+        <dt>版本</dt><dd>V1.7</dd>
         <dt>运行环境</dt><dd>Electron · ${escapeHtml(info.platform || 'win32')}</dd>
         <dt>接口协议</dt><dd>ChatCompletions · Anthropic Messages · Responses</dd>
         <dt>配置文件</dt><dd>~/.dcb/config.json</dd>

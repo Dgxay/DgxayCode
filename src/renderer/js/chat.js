@@ -62,6 +62,11 @@ let slashIndex = 0;
 let slashMode = 'commands';
 let skillsCache = [];
 let skillsLoaded = false;
+let contextRingTimer = 0;
+let contextRingAt = 0;
+let terminalFrame = 0;
+const terminalPending = new Set();
+const tokenCache = new WeakMap();
 
 const SUGGESTIONS = {
   chat: [
@@ -138,14 +143,16 @@ export function initChat() {
     // 用户上滑时不再强制跟随
     state.autoScroll = nearBottom();
   });
+  $('#chatList')?.addEventListener('click', handleChatListClick);
 
   window.dcb.onChatEvent(handleChatEvent);
 
   on('model-changed', () => refreshChrome());
   on('chat-changed', () => refreshAll());
   on('config', () => {
-    if (!state.streaming) refreshAll();
-    else refreshChrome();
+    if (state.settingsOpen) return;
+    if (state.streaming) refreshChrome();
+    else refreshConfig();
   });
 }
 
@@ -156,7 +163,22 @@ export function refreshAll() {
   refreshSidebar();
   refreshHeader();
   renderThread();
-  refreshWorkBar();
+  refreshChrome();
+}
+
+export function refreshConfig() {
+  if (!state.config || state.settingsOpen) return;
+  refreshHeader();
+  const chat = getChat();
+  if (!chat?.messages?.length) {
+    renderThread();
+  } else if (state.autoScroll !== false) {
+    requestAnimationFrame(() => {
+      if (!state.settingsOpen && state.activeChatId === chat.id && state.autoScroll !== false) {
+        scrollToBottom();
+      }
+    });
+  }
   refreshChrome();
 }
 
@@ -203,9 +225,14 @@ function refreshSidebar() {
   $('#chatCount').textContent = chats.length ? String(chats.length) : '';
   $('#sideEmpty').hidden = chats.length > 0;
 
-  list.innerHTML = chats
-    .map(
-      (chat) => `
+  const signature = chats
+    .map((chat) => `${chat.id}\u0000${chat.title || ''}\u0000${chat.id === state.activeChatId ? '1' : '0'}`)
+    .join('\u0001');
+  if (list.dataset.signature !== signature) {
+    list.dataset.signature = signature;
+    list.innerHTML = chats
+      .map(
+        (chat) => `
       <div class="chat-item ${chat.id === state.activeChatId ? 'active' : ''}" data-chat="${chat.id}" title="${escapeHtml(
         chat.title || '新对话'
       )}">
@@ -214,32 +241,30 @@ function refreshSidebar() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>`
-    )
-    .join('');
+      )
+      .join('');
+  }
+}
 
-  list.querySelectorAll('.chat-item').forEach((item) => {
-    item.addEventListener('click', (event) => {
-      if (event.target.closest('[data-del]')) return;
-      switchChat(item.dataset.chat);
+async function handleChatListClick(event) {
+  const item = event.target.closest('.chat-item');
+  if (!item) return;
+  const del = event.target.closest('[data-del]');
+  if (del) {
+    event.stopPropagation();
+    const chat = getChat(del.dataset.del);
+    const ok = await confirmDialog({
+      title: '删除这段对话？',
+      message: `「${escapeHtml(chat?.title || '新对话')}」及其中的消息将被移除，此操作不可恢复。`,
+      confirmText: '删除'
     });
-  });
-
-  list.querySelectorAll('[data-del]').forEach((btn) => {
-    btn.addEventListener('click', async (event) => {
-      event.stopPropagation();
-      const chat = getChat(btn.dataset.del);
-      const ok = await confirmDialog({
-        title: '删除这段对话？',
-        message: `「${escapeHtml(chat?.title || '新对话')}」及其中的消息将被移除，此操作不可恢复。`,
-        confirmText: '删除'
-      });
-      if (ok) {
-        deleteChat(btn.dataset.del);
-        refreshAll();
-        toast('对话已删除');
-      }
-    });
-  });
+    if (!ok) return;
+    deleteChat(del.dataset.del);
+    refreshAll();
+    toast('对话已删除');
+    return;
+  }
+  switchChat(item.dataset.chat);
 }
 
 function refreshHeader() {
@@ -269,19 +294,46 @@ function renderThread() {
   if (isEmpty) {
     messagesEl.innerHTML = heroHtml();
     messagesEl.scrollTop = 0;
+    state.autoScroll = true;
     return;
   }
 
-  chat.messages.forEach((msg) => {
-    if (!msg._id) msg._id = `m_${Math.random().toString(36).slice(2, 9)}`;
-  });
-  refreshContextRing();
+  chat.messages.forEach(ensureMessageId);
 
   const wasNearBottom = nearBottom();
   messagesEl.innerHTML = `<div class="msg-flow">${chat.messages.map(messageHtml).join('')}</div>`;
   if (wasNearBottom) scrollToBottom();
-  refreshContextRing();
+  state.autoScroll = nearBottom();
+  scheduleContextRing(true);
   applyWidowGuard(messagesEl);
+}
+
+function ensureMessageId(msg) {
+  if (!msg._id) msg._id = `m_${Math.random().toString(36).slice(2, 9)}`;
+  return msg;
+}
+
+function messageElement(msg) {
+  return messagesEl?.querySelector(`.msg[data-id="${msg._id}"]`) || null;
+}
+
+function renderNewMessages(previousCount, messages) {
+  const flow = messagesEl.querySelector(':scope > .msg-flow');
+  if (previousCount === 0) {
+    messagesEl.innerHTML = `<div class="msg-flow">${messages.map(messageHtml).join('')}</div>`;
+  } else if (flow && flow.children.length === previousCount) {
+    flow.insertAdjacentHTML('beforeend', messages.map(messageHtml).join(''));
+  } else {
+    renderThread();
+    return;
+  }
+  $('#chatView')?.classList.remove('is-empty');
+  const suggestWrap = $('#suggestWrap');
+  if (suggestWrap) suggestWrap.hidden = true;
+  for (const msg of messages) {
+    const el = messageElement(msg);
+    if (el) applyWidowGuard(el);
+  }
 }
 
 function heroHtml() {
@@ -514,6 +566,62 @@ function terminalHtml(msg) {
         ${err}
       </div>
     </div>`;
+}
+
+function queueTerminalPaint(msg) {
+  terminalPending.add(msg);
+  if (terminalFrame) return;
+  terminalFrame = requestAnimationFrame(() => {
+    terminalFrame = 0;
+    const batch = [...terminalPending];
+    terminalPending.clear();
+    let changed = false;
+    for (const message of batch) {
+      changed = flushTerminalPending(message) || changed;
+    }
+    if (!changed) return;
+    scheduleContextRing();
+    if (state.autoScroll !== false) scrollToBottom();
+    scheduleChatSave();
+  });
+}
+
+function flushTerminalPending(msg) {
+  if (msg._chatId && msg._chatId !== state.activeChatId) return false;
+  const el = messageElement(msg);
+  const out = el?.querySelector('.term-out');
+  if (!out) return false;
+
+  const output = msg.output || '';
+  const stderr = msg.stderr || '';
+  const outNodes = [...out.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE);
+  let outNode = outNodes.at(-1) || null;
+  let changed = false;
+  const paintedOut = outNodes.reduce((total, node) => total + node.data.length, 0);
+  if (output.length > paintedOut) {
+    if (!outNode) {
+      outNode = document.createTextNode('');
+      out.insertBefore(outNode, out.firstChild);
+    }
+    outNode.appendData(output.slice(paintedOut));
+    changed = true;
+  }
+
+  let err = out.querySelector('.term-stderr');
+  const paintedErr = err?.textContent.length || 0;
+  if (stderr.length > paintedErr) {
+    if (!err) {
+      err = document.createElement('span');
+      err.className = 'term-stderr';
+      const cursor = out.querySelector('.term-cursor');
+      out.insertBefore(err, cursor || null);
+    }
+    let errNode = [...err.childNodes].filter((node) => node.nodeType === Node.TEXT_NODE).at(-1);
+    if (!errNode) errNode = err.appendChild(document.createTextNode(''));
+    errNode.appendData(stderr.slice(paintedErr));
+    changed = true;
+  }
+  return changed;
 }
 
 function filesHtml(msg) {
@@ -843,6 +951,7 @@ function nearBottom() {
 
 function scrollToBottom(behavior = 'auto') {
   if (!messagesEl) return;
+  state.autoScroll = true;
   messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior });
 }
 
@@ -906,7 +1015,6 @@ function openModelMenu() {
 export function startNewChat() {
   if (state.streaming) abortStream();
   createNewChat();
-  refreshAll();
   inputEl.focus();
 }
 
@@ -917,7 +1025,7 @@ export async function chooseWorkspace() {
   if (!dir) return null;
   const recents = [dir, ...recentWorkspaces().filter((p) => p !== dir)].slice(0, 6);
   await patchConfig({ work: { workspace: dir, recentWorkspaces: recents } });
-  refreshAll();
+  refreshConfig();
   toast(`工作空间：${workspaceLabel(dir)}`);
   return dir;
 }
@@ -1211,8 +1319,26 @@ function estimateTokens(text) {
   if (!text) return 0;
   let total = 0;
   for (const char of String(text)) {
-    if (/[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff]/.test(char)) total += 1;
-    else if (/\s/.test(char)) total += 0.25;
+    const code = char.codePointAt(0);
+    const cjk =
+      (code >= 0x3040 && code <= 0x30ff) ||
+      (code >= 0x3400 && code <= 0x9fff) ||
+      (code >= 0xf900 && code <= 0xfaff);
+    if (cjk) total += 1;
+    else if (
+      code === 0x20 ||
+      (code >= 0x09 && code <= 0x0d) ||
+      code === 0xa0 ||
+      code === 0x1680 ||
+      (code >= 0x2000 && code <= 0x200a) ||
+      code === 0x2028 ||
+      code === 0x2029 ||
+      code === 0x202f ||
+      code === 0x205f ||
+      code === 0x3000 ||
+      code === 0xfeff
+    )
+      total += 0.25;
     else total += 0.28;
   }
   return Math.ceil(total);
@@ -1230,10 +1356,31 @@ function estimateChatTokens(chat) {
   let total = 700;
   if (!chat) return total;
   for (const msg of chat.messages || []) {
+    let entry = tokenCache.get(msg);
+    if (!entry) {
+      entry = { commandTokens: 0, outputTokens: 0, stderrTokens: 0, contentTokens: 0 };
+      tokenCache.set(msg, entry);
+    }
     if (msg.role === 'terminal') {
-      total += estimateTokens(msg.command) + estimateTokens(msg.output) + estimateTokens(msg.stderr) + 12;
+      if (entry.command !== msg.command) {
+        entry.command = msg.command;
+        entry.commandTokens = estimateTokens(msg.command);
+      }
+      if (entry.output !== msg.output) {
+        entry.output = msg.output;
+        entry.outputTokens = estimateTokens(msg.output);
+      }
+      if (entry.stderr !== msg.stderr) {
+        entry.stderr = msg.stderr;
+        entry.stderrTokens = estimateTokens(msg.stderr);
+      }
+      total += entry.commandTokens + entry.outputTokens + entry.stderrTokens + 12;
     } else {
-      total += estimateTokens(msg.content) + 6;
+      if (entry.content !== msg.content) {
+        entry.content = msg.content;
+        entry.contentTokens = estimateTokens(msg.content);
+      }
+      total += entry.contentTokens + 6;
     }
   }
   if (chat.skill) total += 1200;
@@ -1248,6 +1395,36 @@ function refreshContextRing() {
   ctxRingProgress.style.strokeDashoffset = String(53.41 * (1 - ratio));
   ctxRing.classList.toggle('empty', used <= 700);
   ctxRing.title = `上下文 ${formatTokens(used)} / ${formatTokens(limit)}（${(ratio * 100).toFixed(ratio < 0.1 ? 1 : 0)}%）`;
+}
+
+function scheduleContextRing(force = false) {
+  if (!ctxRing || !ctxRingProgress) return;
+  const now = performance.now();
+  if (force) {
+    if (contextRingTimer) {
+      clearTimeout(contextRingTimer);
+      contextRingTimer = 0;
+    }
+    contextRingAt = now;
+    refreshContextRing();
+    return;
+  }
+  const wait = 180 - (now - contextRingAt);
+  if (wait <= 0) {
+    if (contextRingTimer) {
+      clearTimeout(contextRingTimer);
+      contextRingTimer = 0;
+    }
+    contextRingAt = now;
+    refreshContextRing();
+    return;
+  }
+  if (contextRingTimer) return;
+  contextRingTimer = setTimeout(() => {
+    contextRingTimer = 0;
+    contextRingAt = performance.now();
+    refreshContextRing();
+  }, wait);
 }
 
 function showContextDetails() {
@@ -1372,8 +1549,10 @@ async function runTerminal(rawCommand) {
     status: 'running',
     ts: Date.now(),
     _req: requestId,
-    _id: `m_${Math.random().toString(36).slice(2, 9)}`
+    _id: `m_${Math.random().toString(36).slice(2, 9)}`,
+    _chatId: chat.id
   };
+  const previousCount = chat.messages.length;
   chat.messages.push(message);
   chat.updatedAt = Date.now();
 
@@ -1386,10 +1565,11 @@ async function runTerminal(rawCommand) {
   state.terminalMsg = message;
   state.terminalRequestId = requestId;
 
-  renderThread();
+  renderNewMessages(previousCount, [message]);
   refreshSidebar();
   refreshHeader();
   scrollToBottom();
+  scheduleContextRing(true);
   scheduleChatSave();
 
   try {
@@ -1414,7 +1594,7 @@ async function runTerminal(rawCommand) {
     state.terminalMsg = null;
     state.terminalRequestId = null;
     repaintMessage(message);
-    refreshContextRing();
+    scheduleContextRing(true);
     scheduleChatSave();
     updateSendButton();
     refreshSidebar();
@@ -1453,9 +1633,14 @@ function handleTerminalEvent(event) {
       };
       break;
     case 'output':
-      if (event.stream === 'stderr') message.stderr = (message.stderr || '') + (event.text || '');
-      else message.output = (message.output || '') + (event.text || '');
-      break;
+      if (event.stream === 'stderr') {
+        message.stderr = (message.stderr || '') + (event.text || '');
+      } else {
+        message.output = (message.output || '') + (event.text || '');
+      }
+      queueTerminalPaint(message);
+      scheduleChatSave();
+      return;
     case 'exit':
       message.exitCode = event.code;
       message.status = event.code === 0 ? 'done' : 'error';
@@ -1472,7 +1657,7 @@ function handleTerminalEvent(event) {
       break;
   }
   repaintMessage(message);
-  refreshContextRing();
+  scheduleContextRing();
   if (nearBottom()) scrollToBottom();
   scheduleChatSave();
 }
@@ -1531,9 +1716,10 @@ export async function sendMessage() {
   }
 
   const chat = ensureChat();
+  const previousCount = chat.messages.length;
   chat.mode = mode;
   chat.updatedAt = Date.now();
-  const userMsg = { role: 'user', content: text, ts: Date.now() };
+  const userMsg = { role: 'user', content: text, ts: Date.now(), _id: `m_${Math.random().toString(36).slice(2, 9)}` };
   chat.messages.push(userMsg);
   if (!chat.title || chat.title === '新对话') chat.title = titleFrom(text);
   chat.updatedAt = Date.now();
@@ -1552,20 +1738,23 @@ export async function sendMessage() {
     streaming: true,
     tools: [],
     files: [],
-    reasoning: ''
+    reasoning: '',
+    _id: `m_${Math.random().toString(36).slice(2, 9)}`,
+    _chatId: chat.id
   };
   chat.messages.push(assistant);
   streamingMsg = assistant;
 
-  renderThread();
+  state.autoScroll = true;
+  renderNewMessages(previousCount, [userMsg, assistant]);
   refreshSidebar();
   refreshHeader();
   scrollToBottom();
+  scheduleContextRing(true);
   scheduleChatSave();
 
   state.streaming = true;
   state.currentRequestId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-  state.autoScroll = true;
   updateSendButton();
 
   const history = buildHistory(chat)
@@ -1592,7 +1781,7 @@ export async function sendMessage() {
     stopThinkingClock(assistant);
     state.streaming = false;
     state.currentRequestId = null;
-    finishStreamingUI(chat);
+    finishStreamingUI(chat, assistant);
   }
 }
 
@@ -1601,7 +1790,9 @@ function finishAssistant(msg, result) {
   if (result?.text && result.text.length > (msg.content || '').length) {
     msg.content = result.text;
   }
-  if (result?.reasoning && !msg.reasoning) msg.reasoning = result.reasoning;
+  if (result?.reasoning && result.reasoning.length > (msg.reasoning || '').length) {
+    msg.reasoning = result.reasoning;
+  }
   if (result?.usage) msg.usage = result.usage;
   if (result?.files?.length) msg.files = result.files;
   if (result?.toolLog?.length) {
@@ -1621,16 +1812,20 @@ function finishAssistant(msg, result) {
   }
 }
 
-function finishStreamingUI(chat) {
+function finishStreamingUI(chat, assistant) {
   streamingMsg = null;
   chat.updatedAt = Date.now();
-  if (!state.settingsOpen) renderThread();
+  if (state.activeChatId === chat.id && assistant) {
+    repaintMessage(assistant);
+    const el = messageElement(assistant);
+    if (el) applyWidowGuard(el);
+  }
   refreshSidebar();
   refreshHeader();
   refreshSkillChip();
-  refreshContextRing();
+  scheduleContextRing(true);
   updateSendButton();
-  scrollToBottom();
+  if (state.activeChatId === chat.id) scrollToBottom();
   scheduleChatSave();
 }
 
@@ -1652,7 +1847,7 @@ function handleChatEvent(event) {
         repaintMessage(msg);
         startThinkingClock(msg);
       }
-      queueStreamPaint(true);
+      queueStreamPaint();
       break;
     }
     case 'tool': {
@@ -1703,8 +1898,8 @@ function handleChatEvent(event) {
   }
 }
 
-function queueStreamPaint(force = false) {
-  if (paintQueued && !force) return;
+function queueStreamPaint() {
+  if (paintQueued) return;
   paintQueued = true;
   requestAnimationFrame(() => {
     paintQueued = false;
@@ -1714,29 +1909,37 @@ function queueStreamPaint(force = false) {
 }
 
 function paintStreaming(msg) {
-  const el = messagesEl.querySelector(`.msg[data-id="${msg._id}"]`);
+  if (msg._chatId && msg._chatId !== state.activeChatId) return;
+  const el = messageElement(msg);
   if (!el) {
-    renderThread();
+    if (!state.settingsOpen) renderThread();
     return;
   }
-  const keep = nearBottom();
   const md = el.querySelector('.md');
   if (!md) {
     repaintMessage(msg);
     return;
   }
-  paintStream(md, msg.content || '');
-  const reasoningEl = el.querySelector('.reasoning-body');
-  if (reasoningEl) reasoningEl.textContent = msg.reasoning;
-  refreshContextRing();
-  if (keep) scrollToBottom();
+  if (msg._paintedContent !== msg.content) {
+    paintStream(md, msg.content || '');
+    msg._paintedContent = msg.content;
+  }
+  if (msg._paintedReasoning !== msg.reasoning) {
+    const reasoningEl = el.querySelector('.reasoning-body');
+    if (reasoningEl) reasoningEl.textContent = msg.reasoning;
+    msg._paintedReasoning = msg.reasoning;
+  }
+  scheduleContextRing();
+  if (state.autoScroll !== false) scrollToBottom();
 }
 
 function repaintMessage(msg) {
-  const el = messagesEl.querySelector(`.msg[data-id="${msg._id}"]`);
+  const el = messageElement(msg);
   if (!el) return;
-  const keep = nearBottom();
+  const keep = state.autoScroll !== false && nearBottom();
   el.outerHTML = messageHtml(msg);
+  msg._paintedContent = msg.content;
+  msg._paintedReasoning = msg.reasoning;
   if (keep) scrollToBottom();
 }
 

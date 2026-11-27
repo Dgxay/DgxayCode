@@ -105,26 +105,33 @@ function squirclePath(w, h, radius) {
   return `path("M${body}Z")`;
 }
 
-function apply(el) {
-  if (!enabled || !el.isConnected) return;
-  if (el.matches(FOCUSABLE)) return;
+function measure(el) {
+  if (!enabled || !el.isConnected) return null;
+  if (el.matches(FOCUSABLE)) return null;
   const width = el.offsetWidth;
   const height = el.offsetHeight;
-  if (!width || !height) return;
+  if (!width || !height) return null;
   const radius = radiusOf(el);
-  if (radius < MIN_RADIUS) {
-    el.style.removeProperty('clip-path');
-    return;
-  }
-  const path = squirclePath(width, height, radius);
-  if (path) el.style.setProperty('clip-path', path);
+  if (radius < MIN_RADIUS) return { el, path: '' };
+  return { el, path: squirclePath(width, height, radius) };
+}
+
+function write(plan) {
+  if (!plan.el.isConnected) return;
+  if (plan.path) plan.el.style.setProperty('clip-path', plan.path);
+  else plan.el.style.removeProperty('clip-path');
 }
 
 function flush() {
   frame = 0;
   const batch = [...scheduled];
   scheduled.clear();
-  for (const el of batch) apply(el);
+  const plans = [];
+  for (const el of batch) {
+    const plan = measure(el);
+    if (plan) plans.push(plan);
+  }
+  for (const plan of plans) write(plan);
 }
 
 function schedule(el) {
@@ -154,7 +161,9 @@ export function initSquircle() {
   });
   mutationObserver = new MutationObserver((records) => {
     for (const record of records) {
-      record.addedNodes.forEach((node) => collect(node));
+      record.addedNodes.forEach((node) => {
+        if (node.nodeType === 1) collect(node);
+      });
     }
   });
 
