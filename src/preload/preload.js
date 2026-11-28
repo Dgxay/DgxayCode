@@ -54,6 +54,10 @@ contextBridge.exposeInMainWorld('dcb', {
   onPermissionRequest: (cb) => subscribe('permission:request', cb),
   respondPermission: (payload) => ipcRenderer.invoke('permission:respond', payload),
 
+  harness: {
+    open: () => ipcRenderer.invoke('harness:open')
+  },
+
   window: {
     minimize: () => ipcRenderer.send('window:minimize'),
     toggleMaximize: () => ipcRenderer.send('window:toggle-maximize'),

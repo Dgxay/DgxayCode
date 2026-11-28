@@ -314,7 +314,7 @@ async function requestToken(config, params) {
       headers: {
         'Content-Type': config.tokenFormat === 'json' ? 'application/json' : 'application/x-www-form-urlencoded',
         Accept: 'application/json',
-        'User-Agent': 'DgxayCode/1.7.0'
+        'User-Agent': 'DgxayCode/1.8.0'
       },
       body,
       signal: controller.signal
