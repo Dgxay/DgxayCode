@@ -341,7 +341,9 @@ function heroHtml() {
   const model = activeModel();
   const perm = PERMISSIONS[currentPermission()];
 
-  const title = '想要干点什么吗';
+  const hour = new Date().getHours();
+  const greeting = hour < 6 ? '夜深了' : hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好';
+  const title = mode === 'work' ? `${greeting}，今天要处理什么？` : `${greeting}，今天想做点什么？`;
   const sub =
     mode === 'work'
       ? currentWorkspace()

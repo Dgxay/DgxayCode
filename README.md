@@ -1,4 +1,4 @@
-# DgxayCode v1.8.0
+# DgxayCode V1.7
 A clean, local-first multi-model AI desktop workspace built with Electron. Chat with any supported provider, hand file and terminal work to the model under a reviewed permission system, and keep full control over what runs on your machine.
 
 ## Highlights
@@ -13,28 +13,6 @@ A clean, local-first multi-model AI desktop workspace built with Electron. Chat 
 - **OAuth account connections** — Settings → Accounts connects OpenAI, Anthropic, xAI and Google with PKCE (manual code where required).
 - **Interface and motion** — a ChatGPT-web layout (260px sidebar, 61px top bar, 768px message column, 28px composer radius) with a Chat / Work dropdown at the top-left of the sidebar; light, dark or follow-system themes, dark using a pure black canvas with #212121 overlays; streamed characters resolve out of a gaussian blur, and the thinking panel opens with a self-sizing grid transition.
 - **Local-first** — configuration, conversations, OAuth tokens and MCP definitions stay in `~/.dcb`.
-
-## DgxayCode Workspace
-
-DgxayCode opens directly into the complete upstream DeepSeek Harness Web UI
-(`@deepseek-ai/dsh@0.2.3-alpha.2`) in a sandboxed window. The previous
-DgxayCode renderer is retired and is no longer created at startup.
-
-Requirements and overrides:
-
-- Node.js `^24.22.3 || >=26.13.1` must be on `PATH`, or set `DSH_NODE` to a
-  compatible `node` executable.
-- Set `DSH_CLI` to use a Harness CLI outside this repository, or
-  `DSH_HARNESS_CWD` to choose the Host's starting directory.
-- Harness keeps its credentials, sessions and settings in its own `~/.dsh`
-  home; they are not shared with DgxayCode's `~/.dcb` data.
-
-The integration starts an unmodified upstream runtime rather than copying
-Harness React components into the Vanilla renderer. See
-[DEEPSEEK_HARNESS_INTEGRATION.md](DEEPSEEK_HARNESS_INTEGRATION.md) for the
-component map and architecture, and
-[ThirdPartyNotices.md](ThirdPartyNotices.md) and
-[LICENSE-DEEPSEEK-HARNESS](LICENSE-DEEPSEEK-HARNESS) for attribution.
 
 ## Protocols
 

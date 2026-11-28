@@ -1,7 +1,7 @@
 {
   "name": "dgxay-code",
   "productName": "DgxayCode",
-  "version": "1.8.0",
+  "version": "1.7.0",
   "description": "DgxayCode",
   "author": "Dgxay",
   "license": "GPL-3.0-only",
@@ -30,9 +30,6 @@
     "files": [
       "src/**/*",
       "package.json",
-      "DEEPSEEK_HARNESS_INTEGRATION.md",
-      "LICENSE-DEEPSEEK-HARNESS",
-      "ThirdPartyNotices.md",
       "!**/*.map",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}"
     ],
@@ -95,8 +92,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/dgxay/DgxayCode.git"
-  },
-  "dependencies": {
-    "@deepseek-ai/dsh": "0.2.3-alpha.2"
   }
 }

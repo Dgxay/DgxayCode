@@ -1,4 +1,4 @@
-# DgxayCode v1.8.0
+# DgxayCode V1.7
 一个简洁、明快的多模型 AI 桌面工作台，基于 Electron 构建。支持三种主流模型协议，在对话模式与工作模式之间切换，并让 AI 在分级权限与自动审查的保护下直接处理本地文件与终端命令。
 
 ## 核心功能
@@ -13,27 +13,6 @@
 - **OAuth 账户连接**：设置 → 账户连接，支持 OpenAI、Anthropic、xAI 与 Google 账户（PKCE，可选手动授权码）。
 - **界面与动效**：ChatGPT 网页版式（260px 侧边栏、61px 顶栏、768px 消息列与 28px 圆角输入框），左上角 Chat / Work 下拉切换模式；浅色 / 深色 / 跟随系统三档主题，深色为纯黑画布配 #212121 浮层；模型输出逐字从高斯模糊中浮现，思考框用自适应网格撑开。
 - **本地优先**：配置、对话、OAuth 令牌、MCP 与技能都在本机 `~/.dcb`。
-
-## DgxayCode 工作台
-
-DgxayCode 启动后会直接进入完整的上游 DeepSeek Harness Web UI
-（`@deepseek-ai/dsh@0.2.3-alpha.2`），并运行在独立的沙箱窗口中。原有
-DgxayCode 主界面已停用，启动时不再创建或加载。
-
-运行要求与覆盖项：
-
-- `PATH` 中需有 Node.js `^24.22.3 || >=26.13.1`，或通过 `DSH_NODE`
-  指定兼容的 `node` 可执行文件。
-- 可用 `DSH_CLI` 指向仓库外的 Harness CLI，用 `DSH_HARNESS_CWD`
-  指定 Host 的启动目录。
-- Harness 的凭据、会话和设置保存在自己的 `~/.dsh`，不会与
-  DgxayCode 的 `~/.dcb` 数据混用。
-
-该集成启动未经修改的上游运行时，而不是把 Harness React 组件复制进
-Vanilla 渲染器。组件结构与集成方式见
-[DEEPSEEK_HARNESS_INTEGRATION.md](DEEPSEEK_HARNESS_INTEGRATION.md)，版权声明见
-[ThirdPartyNotices.md](ThirdPartyNotices.md)
-与 [LICENSE-DEEPSEEK-HARNESS](LICENSE-DEEPSEEK-HARNESS)。
 
 ## 协议支持
 

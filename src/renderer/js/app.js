@@ -13,7 +13,7 @@ import {
   providers,
   emit
 } from './store.js';
-import { $, escapeHtml, toast, dismissToast, openModal, openMenu, matchesAccel } from './ui.js';
+import { $, escapeHtml, toast, openModal, openMenu, matchesAccel } from './ui.js';
 import { icons } from './icons.js';
 import * as chat from './chat.js';
 import * as settings from './settings.js';
@@ -83,7 +83,6 @@ function bindStaticEvents() {
     chat.startNewChat();
   });
   $('#btnSettings').addEventListener('click', () => settings.openSettings('providers'));
-  $('#btnHarness').addEventListener('click', openHarnessWorkspace);
 
   const modeBtn = $('#btnMode');
   modeBtn.addEventListener('click', () => openModeMenu(modeBtn));
@@ -147,32 +146,6 @@ function bindStaticEvents() {
   });
 }
 
-async function openHarnessWorkspace() {
-  const button = $('#btnHarness');
-  if (!button || button.getAttribute('aria-busy') === 'true') return;
-  if (!window.dcb?.harness?.open) {
-    toast('当前版本未提供 DgxayCode 工作台入口', 'error');
-    return;
-  }
-
-  button.setAttribute('aria-busy', 'true');
-  const pendingToast = toast('正在启动 DgxayCode 工作台…', 'ok', 0);
-  try {
-    const result = await window.dcb.harness.open();
-    dismissToast(pendingToast);
-    if (!result?.ok) {
-      toast(result?.error || 'DgxayCode 工作台启动失败', 'error', 8000);
-    } else if (!result.reused) {
-      toast('DgxayCode 工作台已打开');
-    }
-  } catch (error) {
-    dismissToast(pendingToast);
-    toast(error?.message || 'DgxayCode 工作台启动失败', 'error', 8000);
-  } finally {
-    button.removeAttribute('aria-busy');
-  }
-}
-
 let lastFontScale = null;
 
 function applyConfigUI() {
@@ -191,9 +164,9 @@ function applyConfigUI() {
   const kbdSet = $('#kbdSettings');
   if (kbdSet) kbdSet.textContent = config.shortcuts?.settings || '';
   const ver = $('#setVersion');
-  if (ver && state.info) ver.textContent = 'v1.8.0';
+  if (ver && state.info) ver.textContent = 'V1.7';
   const sideVer = $('#sideVersion');
-  if (sideVer && state.info) sideVer.textContent = 'v1.8.0';
+  if (sideVer && state.info) sideVer.textContent = `V1.7`;
 
   // 自动审查模式只在已配置审查模型时可用，移除配置后回落到普通权限
   if (config.ui?.permission === 'auto' && !hasReviewModel() && !autoFallbackPending) {

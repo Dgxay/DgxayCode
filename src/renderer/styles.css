@@ -465,12 +465,6 @@ body.platform-darwin .titlebar {
   flex: 0 0 20px;
   color: var(--text);
 }
-.nav-row .brand-nav-icon {
-  object-fit: contain;
-}
-:root[data-theme='dark'] .nav-row .brand-nav-icon {
-  filter: invert(1);
-}
 .nav-row span {
   flex: 1;
   min-width: 0;
@@ -484,22 +478,6 @@ body.platform-darwin .titlebar {
   font-size: 10px;
   color: var(--text-3);
   letter-spacing: 0;
-}
-.nav-row .nav-tag {
-  flex: 0 0 auto;
-  padding: 0 5px;
-  border: 0.5px solid var(--line-strong);
-  border-radius: 5px;
-  color: var(--text-3);
-  font-size: 9px;
-  font-weight: var(--fw-3);
-  line-height: 15px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.nav-row[aria-busy='true'] {
-  pointer-events: none;
-  opacity: 0.55;
 }
 
 .side-heading {

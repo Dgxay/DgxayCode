@@ -26,24 +26,15 @@ export function debounce(fn, wait = 300) {
 
 export function toast(message, type = 'ok', duration = 2600) {
   const layer = $('#toastLayer');
-  if (!layer) return null;
+  if (!layer) return;
   const el = document.createElement('div');
   el.className = `toast ${type === 'ok' ? '' : type}`.trim();
   el.innerHTML = `<span class="t-dot"></span><span>${escapeHtml(message)}</span>`;
   layer.appendChild(el);
-  if (duration > 0) {
-    setTimeout(() => {
-      el.classList.add('out');
-      setTimeout(() => el.remove(), 220);
-    }, duration);
-  }
-  return el;
-}
-
-export function dismissToast(el) {
-  if (!el || !el.isConnected) return;
-  el.classList.add('out');
-  setTimeout(() => el.remove(), 220);
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 220);
+  }, duration);
 }
 
 export async function copyText(text) {
