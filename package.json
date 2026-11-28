@@ -27,8 +27,6 @@
       "output": "dist",
       "buildResources": "build"
     },
-    "asar": false,
-    "npmRebuild": false,
     "files": [
       "src/**/*",
       "package.json",

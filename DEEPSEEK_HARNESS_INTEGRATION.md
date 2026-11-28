@@ -122,8 +122,6 @@ The integration was verified with:
 ## Packaging note
 
 The Harness Host is a Node.js process and must run outside an ASAR archive.
-The electron-builder configuration therefore sets `asar` to `false`, and sets
-`npmRebuild` to `false` so native modules keep their Node ABI instead of being
-rebuilt for Electron. Production packaging must still provide a compatible
-Node runtime on `PATH` or through `DSH_NODE`, or the launcher will show a clear
-configuration error.
+Production packaging must provide a compatible Node runtime and expose the
+Harness CLI outside ASAR (for example through `DSH_CLI`), or the launcher will
+show a clear configuration error.
